@@ -5,3 +5,7 @@ data class ImageData(
     @field:Json(name = "url") val imageUrl: String,
     val breeds: List<CatBreedData>
 )
+
+data class Breed(
+    @Json(name = "name") val name: String
+)

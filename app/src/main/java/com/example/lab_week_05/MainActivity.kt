@@ -46,26 +46,39 @@ class MainActivity : AppCompatActivity() {
 
     private fun getCatImageResponse() {
         val call = catApiService.searchImages(1, "full")
-        call.enqueue(object: Callback<List<ImageData>> {
+        call.enqueue(object : Callback<List<ImageData>> {
             override fun onFailure(call: Call<List<ImageData>>, t: Throwable) {
                 Log.e(MAIN_ACTIVITY, "Failed to get response", t)
             }
-            override fun onResponse(call: Call<List<ImageData>>, response:
-            Response<List<ImageData>>) {
-                if(response.isSuccessful){
+
+            override fun onResponse(
+                call: Call<List<ImageData>>,
+                response: Response<List<ImageData>>
+            ) {
+                if (response.isSuccessful) {
                     val image = response.body()
-                    val firstImage = image?.firstOrNull()?.imageUrl.orEmpty()
-                    if (firstImage.isNotBlank()) {
-                        imageLoader.loadImage(firstImage, imageResultView)
+                    val firstImage = image?.firstOrNull()
+
+                    val breedName = firstImage?.breeds?.firstOrNull()?.name
+                    val breedText = if (breedName != null) {
+                        getString(R.string.cat_breed_placeholder, breedName)
+                    } else {
+                        getString(R.string.cat_breed_unknown)
+                    }
+
+                    apiResponseView.text = breedText
+
+
+                    val firstImageUrl = firstImage?.imageUrl.orEmpty()
+                    if (firstImageUrl.isNotBlank()) {
+                        imageLoader.loadImage(firstImageUrl, imageResultView)
                     } else {
                         Log.d(MAIN_ACTIVITY, "Missing image URL")
                     }
-                    apiResponseView.text = getString(R.string.image_placeholder,
-                        firstImage)
-                }
-                else{
-                    Log.e(MAIN_ACTIVITY, "Failed to get response\n" +
-                            response.errorBody()?.string().orEmpty()
+                } else {
+                    Log.e(
+                        MAIN_ACTIVITY, "Failed to get response\n" +
+                                response.errorBody()?.string().orEmpty()
                     )
                 }
             }
